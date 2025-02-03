@@ -1,6 +1,3 @@
-"use server"
-
-
 import { CompanySettings } from '@prisma/client';
 import { DatabaseHandler } from './PrismaService';
 

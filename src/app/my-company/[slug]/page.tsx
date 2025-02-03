@@ -22,7 +22,7 @@ interface Action{
 export default function MyCompanyHomeView() {
     const session               = useSession();
     const { slug }              = useParams()
-    let { 
+    const { 
         data:           userData, 
         isLoading:      userLoading
     } = useUser(session.data);    
@@ -126,7 +126,7 @@ export default function MyCompanyHomeView() {
                     <div className="flex items-center space-x-4">
                     <Clock size={32} className="text-secondary" />
                     <div>
-                        <h2 className="text-xl font-bold">Fundada em {new Date(companyInfo?.createdAt!).toLocaleDateString()}</h2>
+                        <h2 className="text-xl font-bold">Fundada em {new Date(companyInfo?.createdAt ?? "").toLocaleDateString()}</h2>
                         <p className="text-gray-300">História</p>
                     </div>
                     </div>

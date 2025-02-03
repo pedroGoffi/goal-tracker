@@ -54,11 +54,11 @@ export async function POST(req: NextRequest) {
     const session = await getServerSession(authOptions);
     console.log(session)
     if (session) {
-      // @ts-ignore      
+      // @ts-expect-error
       session.userId = savedUser.id;
-      // @ts-ignore
+      // @ts-expect-error
       session.role = savedUser.role;
-      // @ts-ignore
+      // @ts-expect-error
       await session.save();
     }
 

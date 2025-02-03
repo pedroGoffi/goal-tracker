@@ -94,6 +94,7 @@ const MobileMenu = ({ session, isOpen, setIsOpen }: MobileMenuProps) => {
                         companyData && (
                           NavUserDropdownItems(companyData).map((item: INavUserItem) => (
                             <NavItem
+                                key={`ITEM_KEY_REL(${item.href})`}
                                 href={item.href}
                                 icon={item.icon}
                                 label={item.text}
@@ -330,7 +331,7 @@ export default function RootNavbar() {
     <RootNavLayout 
       session={session}
       key='root-nav-bar-layout'/>
-  ), [session?.user])
+  ), [session])
 
   return navMemo
 }

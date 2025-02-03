@@ -1,5 +1,3 @@
-"use server";
-
 import { User } from '@prisma/client';
 import { DatabaseHandler } from './PrismaService';
 

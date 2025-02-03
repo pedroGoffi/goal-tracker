@@ -1,5 +1,3 @@
-"use server"
-
 import { Report } from '@prisma/client';
 import { DatabaseHandler } from './PrismaService';
 

@@ -4,7 +4,7 @@ import { useEnvInfo } from '@/hooks/useEnvInfo';
 import React, { useState } from 'react';
 
 const ContactPage = () => {    
-    const { data, isLoading }= useEnvInfo()
+    const { data }= useEnvInfo()
     console.log(data)
     const [formData, setFormData] = useState({
         nome: '',

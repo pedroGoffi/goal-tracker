@@ -1,5 +1,3 @@
-"use server"
-
 import { Permission } from '@prisma/client';
 import { DatabaseHandler } from './PrismaService';
 
