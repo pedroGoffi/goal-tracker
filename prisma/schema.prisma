@@ -1,218 +1,218 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+  // This is your Prisma schema file,
+  // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-generator client {
-  provider = "prisma-client-js"
-}
+  generator client {
+    provider = "prisma-client-js"
+  }
 
-datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
-}
+  datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+  }
 
-enum UserRole {
-  ADMIN
-  MANAGER
-  EMPLOYEE
-}
+  enum UserRole {
+    ADMIN
+    MANAGER
+    EMPLOYEE
+  }
 
-enum GoalType {
-  FINANCIAL
-  PERFORMANCE
-  SALES
-  OPERATIONAL
-  CUSTOMER_SATISFACTION
-  INNOVATION
-  SUSTAINABILITY
-}
+  enum GoalType {
+    FINANCIAL
+    PERFORMANCE
+    SALES
+    OPERATIONAL
+    CUSTOMER_SATISFACTION
+    INNOVATION
+    SUSTAINABILITY
+  }
 
-enum GoalStatus {
-  PLANNED
-  IN_PROGRESS
-  PARTIALLY_COMPLETED
-  COMPLETED
-  FAILED
-}
+  enum GoalStatus {
+    PLANNED
+    IN_PROGRESS
+    PARTIALLY_COMPLETED
+    COMPLETED
+    FAILED
+  }
 
-enum GoalFrequency {
-  DAILY
-  WEEKLY
-  MONTHLY
-  SEMESTRALLY
-  ANNUALLY
-}
+  enum GoalFrequency {
+    DAILY
+    WEEKLY
+    MONTHLY
+    SEMESTRALLY
+    ANNUALLY
+  }
 
-model Goal {
-  id             String      @id @default(uuid())
-  title          String
-  description    String?
-  type           GoalType
-  status         GoalStatus  @default(PLANNED)
-  
-  // Quantitative metrics
-  targetValue    Float
-  currentValue   Float       @default(0)
-  
-  // Time tracking
-  startDate      DateTime
-  endDate        DateTime
-  frequency      GoalFrequency
+  model Goal {
+    id             String      @id @default(uuid())
+    title          String
+    description    String?
+    type           GoalType
+    status         GoalStatus  @default(PLANNED)
+    
+    // Quantitative metrics
+    targetValue    Float
+    currentValue   Float       @default(0)
+    
+    // Time tracking
+    startDate      DateTime
+    endDate        DateTime
+    frequency      GoalFrequency
 
-  // Relationships
-  user           User        @relation(fields: [userId], references: [id])
-  userId         String
-  
-  company        Company     @relation(fields: [companyId], references: [id])
-  companyId      String
-  
-  department     Department? @relation(fields: [departmentId], references: [id])
-  departmentId   String?
+    // Relationships
+    user           User        @relation(fields: [userId], references: [id])
+    userId         String
+    
+    company        Company     @relation(fields: [companyId], references: [id])
+    companyId      String
+    
+    department     Department? @relation(fields: [departmentId], references: [id])
+    departmentId   String?
 
-  // Tracking and historical data
-  progressLogs   ProgressLog[]
-  achievements   Achievement[]
+    // Tracking and historical data
+    progressLogs   ProgressLog[]
+    achievements   Achievement[]
 
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-}
+    createdAt      DateTime    @default(now())
+    updatedAt      DateTime    @updatedAt
+  }
 
 
-model User {
-  id             String      @id @default(uuid())
-  email          String      @unique
-  password       String
-  name           String
-  role           UserRole
-  permissions    Permission[] 
-  profileImage   String?
-  company        Company?    @relation(fields: [companyId], references: [id])
-  companyId      String?
-  department     Department? @relation(fields: [departmentId], references: [id])
-  departmentId   String?
-  goals          Goal[]
-  progressLogs   ProgressLog[]  // Add this line for reverse relation
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-}
+  model User {
+    id             String      @id @default(uuid())
+    email          String      @unique
+    password       String
+    name           String
+    role           UserRole
+    permissions    Permission[] 
+    profileImage   String?
+    company        Company?    @relation(fields: [companyId], references: [id])
+    companyId      String?
+    department     Department? @relation(fields: [departmentId], references: [id])
+    departmentId   String?
+    goals          Goal[]
+    progressLogs   ProgressLog[]  // Add this line for reverse relation
+    createdAt      DateTime    @default(now())
+    updatedAt      DateTime    @updatedAt
+  }
 
-model Permission {
-  id          Int       @id @default(autoincrement())
-  action      String    // e.g. "send", "view", "edit"
-  resource    String    // e.g. "document", "page"
-  userId      String    // Change this to String to match the User model
-  user        User      @relation(fields: [userId], references: [id]) // Foreign key refers to User's id
-}
+  model Permission {
+    id          Int       @id @default(autoincrement())
+    action      String    // e.g. "send", "view", "edit"
+    resource    String    // e.g. "document", "page"
+    userId      String    // Change this to String to match the User model
+    user        User      @relation(fields: [userId], references: [id]) // Foreign key refers to User's id
+  }
 
-model Report {
-  id             String      @id @default(uuid())
-  title          String
-  description    String?
-  status         ReportStatus @default(PENDING)
-  startDate      DateTime
-  endDate        DateTime
-  company        Company     @relation(fields: [companyId], references: [id])
-  companyId      String
+  model Report {
+    id             String      @id @default(uuid())
+    title          String
+    description    String?
+    status         ReportStatus @default(PENDING)
+    startDate      DateTime
+    endDate        DateTime
+    company        Company     @relation(fields: [companyId], references: [id])
+    companyId      String
 
-  // Optional filters or additional fields for reports (e.g., metrics)
-  metrics        Json?       // Stores metrics or custom data (can be a JSON object)
-  
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-}
+    // Optional filters or additional fields for reports (e.g., metrics)
+    metrics        Json?       // Stores metrics or custom data (can be a JSON object)
+    
+    createdAt      DateTime    @default(now())
+    updatedAt      DateTime    @updatedAt
+  }
 
-enum ReportStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-  FAILED
-}
+  enum ReportStatus {
+    PENDING
+    IN_PROGRESS
+    COMPLETED
+    FAILED
+  }
 
-model CompanySettings {
-  id               String   @id @default(uuid())
-  companyId        String   @unique // Add the @unique constraint here
-  company          Company  @relation(fields: [companyId], references: [id])
+  model CompanySettings {
+    id               String   @id @default(uuid())
+    companyId        String   @unique // Add the @unique constraint here
+    company          Company  @relation(fields: [companyId], references: [id])
 
-  // Configuration settings for the company
-  timezone         String   @default("UTC")  // Default timezone for the company
-  logoUrl          String?  // Optional logo URL for the company
-  website          String?  // Optional website URL
-  emailContact     String?  // Optional email contact for the company
-  phoneContact     String?  // Optional phone number for the company
+    // Configuration settings for the company
+    timezone         String   @default("UTC")  // Default timezone for the company
+    logoUrl          String?  // Optional logo URL for the company
+    website          String?  // Optional website URL
+    emailContact     String?  // Optional email contact for the company
+    phoneContact     String?  // Optional phone number for the company
 
-  // Settings for reporting or features
-  enableReports    Boolean  @default(true) // Toggle for enabling/disabling reports feature
-  enableNotifications Boolean @default(true) // Toggle for enabling/disabling notifications
+    // Settings for reporting or features
+    enableReports    Boolean  @default(true) // Toggle for enabling/disabling reports feature
+    enableNotifications Boolean @default(true) // Toggle for enabling/disabling notifications
 
-  // Privacy and security related settings
-  twoFactorAuth    Boolean  @default(false)  // Two-factor authentication for company users
+    // Privacy and security related settings
+    twoFactorAuth    Boolean  @default(false)  // Two-factor authentication for company users
 
-  createdAt        DateTime @default(now()) // Track when the settings were created
-  updatedAt        DateTime @updatedAt // Automatically track when the settings were last updated
-}
+    createdAt        DateTime @default(now()) // Track when the settings were created
+    updatedAt        DateTime @updatedAt // Automatically track when the settings were last updated
+  }
 
-model Company {
-  id             String       @id @default(uuid())
-  nomeEmpresa    String
-  nomeFantasia   String
-  cnpj           String       @unique
-  tipoEmpresa    String
-  capitalSocial  String
-  faturamentoAnual String
-  setorAtividade String
-  foundationDate DateTime
-  users          User[]
-  departments    Department[]
-  goals          Goal[]
-  reports        Report[]
-  settings       CompanySettings? @relation // No need to define the fields or references here
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-}
+  model Company {
+    id             String       @id @default(uuid())
+    nomeEmpresa    String
+    nomeFantasia   String
+    cnpj           String       @unique
+    tipoEmpresa    String
+    capitalSocial  String
+    faturamentoAnual String
+    setorAtividade String
+    foundationDate DateTime
+    users          User[]
+    departments    Department[]
+    goals          Goal[]
+    reports        Report[]
+    settings       CompanySettings? @relation // No need to define the fields or references here
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
+  }
 
-model Department {
-  id             String   @id @default(uuid())
-  name           String
-  company        Company  @relation(fields: [companyId], references: [id])
-  companyId      String
-  users          User[]
-  goals          Goal[]
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-}
+  model Department {
+    id             String   @id @default(uuid())
+    name           String
+    company        Company  @relation(fields: [companyId], references: [id])
+    companyId      String
+    users          User[]
+    goals          Goal[]
+    createdAt      DateTime @default(now())
+    updatedAt      DateTime @updatedAt
+  }
 
-model ProgressLog {
-  id             String      @id @default(uuid())
-  goal           Goal        @relation(fields: [goalId], references: [id])
-  goalId         String
-  
-  value          Float
-  notes          String?
-  
-  loggedBy       User        @relation(fields: [userId], references: [id])
-  userId         String
-  
-  loggedAt       DateTime    @default(now())
-}
+  model ProgressLog {
+    id             String      @id @default(uuid())
+    goal           Goal        @relation(fields: [goalId], references: [id])
+    goalId         String
+    
+    value          Float
+    notes          String?
+    
+    loggedBy       User        @relation(fields: [userId], references: [id])
+    userId         String
+    
+    loggedAt       DateTime    @default(now())
+  }
 
-model Achievement {
-  id             String      @id @default(uuid())
-  goal           Goal        @relation(fields: [goalId], references: [id])
-  goalId         String
-  
-  title          String
-  description    String?
-  
-  achievedValue  Float
-  achievementDate DateTime   @default(now())
-}
+  model Achievement {
+    id             String      @id @default(uuid())
+    goal           Goal        @relation(fields: [goalId], references: [id])
+    goalId         String
+    
+    title          String
+    description    String?
+    
+    achievedValue  Float
+    achievementDate DateTime   @default(now())
+  }
 
-model Notification {
-  id             String      @id @default(uuid())
-  recipient      String
-  message        String
-  type           String
-  isRead         Boolean     @default(false)
-  relatedEntityId String?
-  
-  createdAt      DateTime    @default(now())
-}
+  model Notification {
+    id             String      @id @default(uuid())
+    recipient      String
+    message        String
+    type           String
+    isRead         Boolean     @default(false)
+    relatedEntityId String?
+    
+    createdAt      DateTime    @default(now())
+  }
