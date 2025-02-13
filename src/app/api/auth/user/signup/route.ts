@@ -41,11 +41,11 @@ export async function POST(req: NextRequest) {
     const newUser: any = {
       name,
       email,
-      password: hashedPassword,
-      companyId: companyKey || null, // Nullable if no company key provided
-      createdAt: new Date(),
+      password:     hashedPassword,
+      companyId:    companyKey || null, // Nullable if no company key provided
+      createdAt:    new Date(),
       departmentId: null, // Set explicitly to null
-      role: "EMPLOYEE",
+      role:         "EMPLOYEE",
     };
 
     const savedUser = await createUser(newUser);
