@@ -5,10 +5,8 @@ import { Report } from "@prisma/client";
 import { useCompanyReports } from "@/hooks/useCompanyReports";
 import { ChevronDown, Download, FileText, Filter, Loader2, X } from "lucide-react";
 import { useParams } from "next/navigation";
-import { DateRange } from "react-day-picker";
 import { format } from "date-fns";
-
-// Components
+import { Calendar } from "@/components/ui/calendar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,125 +14,130 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import SubNavbar from "@/components/my-company/my-company-navbar";
 
-const StatusBadge = ({ status }: { status: string }) => {
-  const statusConfig = useMemo(() => ({
-    PENDING: { label: "Pendente", class: "bg-yellow-900/30 text-yellow-400" },
-    COMPLETED: { label: "Concluído", class: "bg-green-900/30 text-green-400" },
-    IN_PROGRESS: { label: "Em Andamento", class: "bg-blue-900/30 text-blue-400" }
-  }), []);
+interface DateRange {
+  from: Date;
+  to?: Date;
+}
 
-  return (
-    <Badge className={`${statusConfig[status as keyof typeof statusConfig]?.class} gap-1.5`}>
-      <span className="h-2 w-2 rounded-full bg-current" />
-      {statusConfig[status as keyof typeof statusConfig]?.label}
-    </Badge>
-  );
+interface StatusConfig {
+  label: string;
+  class: string;
+}
+
+const STATUS_CONFIG: Record<string, StatusConfig> = {
+  PENDING: { label: "Pending", class: "bg-yellow-900/30 text-yellow-400" },
+  COMPLETED: { label: "Completed", class: "bg-green-900/30 text-green-400" },
+  IN_PROGRESS: { label: "In Progress", class: "bg-blue-900/30 text-blue-400" }
 };
 
-const ReportFilters = ({
-  dateRange,
-  setDateRange,
-  status,
-  setStatus,
-}: {
+interface StatusBadgeProps {
+  status: string;
+}
+
+const StatusBadge = ({ status }: StatusBadgeProps) => (
+  <Badge className={`${STATUS_CONFIG[status]?.class} gap-1.5`}>
+    <span className="h-2 w-2 rounded-full bg-current" />
+    {STATUS_CONFIG[status]?.label}
+  </Badge>
+);
+
+interface FilterProps {
   dateRange?: DateRange;
   setDateRange: (range?: DateRange) => void;
   status: string;
   setStatus: (status: string) => void;
-}) => {
-  const [calendarOpen, setCalendarOpen] = useState(false);
+}
 
-  return (
-    <div className="flex flex-wrap gap-3 items-center">
-      <DropdownMenu open={calendarOpen} onOpenChange={setCalendarOpen}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="secondary" className="pl-3 bg-gray-800 border-gray-700 hover:bg-gray-700">
-            <span className="mr-2 text-gray-300">
-              {dateRange?.from ? (
-                dateRange.to ? (
-                  `${format(dateRange.from, "dd/MM/yy")} - ${format(dateRange.to, "dd/MM/yy")}`
-                ) : (
-                  format(dateRange.from, "dd/MM/yy")
-                )
-              ) : "Selecionar período"}
-            </span>
-            {dateRange ? (
-              <X
-                className="h-4 w-4 ml-2 text-gray-400"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setDateRange(undefined);
-                }}
-              />
-            ) : (
-              <Filter className="h-4 w-4 text-gray-400" />
-            )}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="p-0 bg-gray-800 border-gray-700" align="start">
-          <Calendar
-            mode="range"
-            selected={dateRange}
-            onSelect={setDateRange}
-            numberOfMonths={2}
-            defaultMonth={new Date()}
-            className="bg-gray-800 border-gray-700"
-            classNames={{
-              head_cell: "text-gray-400",
-              day: "text-white hover:bg-gray-700",
-              nav_button: "hover:bg-gray-700"
-            }}
-          />
-        </DropdownMenuContent>
-      </DropdownMenu>
+const Filters = ({ dateRange, setDateRange, status, setStatus }: FilterProps) => (
+  <div className="flex flex-wrap gap-3 items-center">
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="secondary" className="pl-3 bg-neutral-800 border-neutral-700 hover:bg-neutral-700">
+          <span className="mr-2 text-neutral-300">
+            {dateRange?.from ? (
+              dateRange.to ? (
+                `${format(dateRange.from, "MM/dd/yy")} - ${format(dateRange.to, "MM/dd/yy")}`
+              ) : (
+                format(dateRange.from, "MM/dd/yy")
+              )
+            ) : "Select date range"}
+          </span>
+          {dateRange ? (
+            <X
+              className="h-4 w-4 ml-2 text-neutral-400"
+              onClick={(e) => {
+                e.stopPropagation();
+                setDateRange(undefined);
+              }}
+            />
+          ) : (
+            <Filter className="h-4 w-4 text-neutral-400" />
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="p-0 bg-neutral-800 border-neutral-700" align="start">
+        <Calendar
+          mode="range"
+          selected={dateRange}
+          onSelect={setDateRange as any} 
+          numberOfMonths={2}
+          defaultMonth={new Date()}
+          className="bg-neutral-800 border-neutral-700"
+          classNames={{
+            head_cell: "text-neutral-400",
+            day: "text-white hover:bg-neutral-700",
+            nav_button: "hover:bg-neutral-700"
+          }}
+        />
+      </DropdownMenuContent>
+    </DropdownMenu>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="secondary" className="bg-gray-800 border-gray-700 hover:bg-gray-700">
-            <Filter className="h-4 w-4 mr-2 text-gray-400" />
-            <span className="text-gray-300">
-              Status: {status === "ALL" ? "Todos" : <StatusBadge status={status} />}
-            </span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="bg-gray-800 border-gray-700">
-          <DropdownMenuItem 
-            className="text-gray-300 hover:bg-gray-700" 
-            onClick={() => setStatus("ALL")}
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="secondary" className="bg-neutral-800 border-neutral-700 hover:bg-neutral-700">
+          <Filter className="h-4 w-4 mr-2 text-neutral-400" />
+          <span className="text-neutral-300">
+            Status: {status === "ALL" ? "All" : <StatusBadge status={status} />}
+          </span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="bg-neutral-800 border-neutral-700">
+        <DropdownMenuItem 
+          className="text-neutral-300 hover:bg-neutral-700" 
+          onClick={() => setStatus("ALL")}
+        >
+          All
+        </DropdownMenuItem>
+        {Object.keys(STATUS_CONFIG).map((key) => (
+          <DropdownMenuItem
+            key={key}
+            className="hover:bg-neutral-700"
+            onClick={() => setStatus(key)}
           >
-            Todos
+            <StatusBadge status={key} />
           </DropdownMenuItem>
-          {Object.entries({
-            PENDING: "Pendente",
-            IN_PROGRESS: "Em Andamento",
-            COMPLETED: "Concluído",
-          }).map(([key, label]) => (
-            <DropdownMenuItem
-              key={key}
-              className="hover:bg-gray-700"
-              onClick={() => setStatus(key)}
-            >
-              <StatusBadge status={key} />
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  );
-};
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  </div>
+);
 
-const ReportTable = ({ reports, isLoading }: { reports?: Report[]; isLoading: boolean }) => {
+interface ReportTableProps {
+  reports?: Report[];
+  isLoading: boolean;
+}
+
+const ReportTable = ({ reports, isLoading }: ReportTableProps) => {
   if (isLoading) {
     return (
       <div className="space-y-4">
         {Array(5).fill(0).map((_, i) => (
-          <Skeleton key={i} className="h-12 w-full rounded-lg bg-gray-800" />
+          <Skeleton key={i} className="h-12 w-full rounded-lg bg-neutral-800" />
         ))}
       </div>
     );
@@ -143,28 +146,28 @@ const ReportTable = ({ reports, isLoading }: { reports?: Report[]; isLoading: bo
   if (!reports?.length) {
     return (
       <div className="flex flex-col items-center justify-center py-24 space-y-4">
-        <FileText className="h-12 w-12 text-gray-600" />
-        <p className="text-gray-500">Nenhum relatório encontrado</p>
+        <FileText className="h-12 w-12 text-neutral-600" />
+        <p className="text-neutral-500">No reports found</p>
       </div>
     );
   }
 
   return (
     <Table>
-      <TableHeader className="bg-gray-800 hover:bg-gray-800">
-        <TableRow className="border-gray-700">
-          <TableHead className="text-gray-300">Título</TableHead>
-          <TableHead className="hidden md:table-cell text-gray-300">Data</TableHead>
-          <TableHead className="text-gray-300">Status</TableHead>
-          <TableHead className="text-right text-gray-300">Ações</TableHead>
+      <TableHeader className="bg-neutral-800 hover:bg-neutral-800">
+        <TableRow className="border-neutral-700">
+          <TableHead className="text-neutral-300">Title</TableHead>
+          <TableHead className="hidden md:table-cell text-neutral-300">Date</TableHead>
+          <TableHead className="text-neutral-300">Status</TableHead>
+          <TableHead className="text-right text-neutral-300">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {reports.map((report) => (
-          <TableRow key={report.id} className="border-gray-700 hover:bg-gray-800/50">
-            <TableCell className="font-medium text-gray-100">{report.title}</TableCell>
-            <TableCell className="hidden md:table-cell text-gray-400">
-              {format(new Date(report.createdAt), "dd/MM/yyyy")}
+          <TableRow key={report.id} className="border-neutral-700 hover:bg-neutral-800/50">
+            <TableCell className="font-medium text-neutral-100">{report.title}</TableCell>
+            <TableCell className="hidden md:table-cell text-neutral-400">
+              {format(new Date(report.createdAt), "MM/dd/yyyy")}
             </TableCell>
             <TableCell>
               <StatusBadge status={report.status} />
@@ -172,19 +175,19 @@ const ReportTable = ({ reports, isLoading }: { reports?: Report[]; isLoading: bo
             <TableCell className="text-right">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-200">
-                    <span className="sr-only">Abrir menu</span>
+                  <Button variant="ghost" size="sm" className="text-neutral-400 hover:text-neutral-200">
+                    <span className="sr-only">Open menu</span>
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-gray-800 border-gray-700">
-                  <DropdownMenuItem className="gap-2 text-gray-300 hover:bg-gray-700">
+                <DropdownMenuContent className="bg-neutral-800 border-neutral-700">
+                  <DropdownMenuItem className="gap-2 text-neutral-300 hover:bg-neutral-700">
                     <Download className="h-4 w-4" />
                     Download PDF
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="gap-2 text-gray-300 hover:bg-gray-700">
+                  <DropdownMenuItem className="gap-2 text-neutral-300 hover:bg-neutral-700">
                     <FileText className="h-4 w-4" />
-                    Detalhes
+                    Details
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -198,34 +201,34 @@ const ReportTable = ({ reports, isLoading }: { reports?: Report[]; isLoading: bo
 
 export default function CompanyReportsPage() {
   const { slug } = useParams();
-  const [dateRange, setDateRange] = useState<DateRange | any>();
+  const [dateRange, setDateRange] = useState<DateRange>();
   const [status, setStatus] = useState("ALL");
 
-  const { data, isLoading, error } = useCompanyReports(
+  const { data: reports, isLoading, error } = useCompanyReports(
     slug as string,
-    dateRange,
+    dateRange as any,
     status
   );
 
   return (
-    <div className="min-h-screen bg-gray-900 p-6 max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen bg-neutral-900 p-6 max-w-7xl mx-auto space-y-8">
       <SubNavbar slug={slug as string} />
 
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row justify-between items-start gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-100">Relatórios</h1>
-            <p className="text-gray-400 mt-2">
-              Gerencie e acompanhe os relatórios da empresa
+            <h1 className="text-3xl font-bold text-neutral-100">Reports</h1>
+            <p className="text-neutral-400 mt-2">
+              Manage and track company reports
             </p>
           </div>
-          <Button className="gap-2 bg-indigo-600 hover:bg-indigo-500 text-white">
+          <Button className="gap-2 bg-blue-600 hover:bg-blue-500 text-white">
             <FileText className="h-4 w-4" />
-            Novo Relatório
+            New Report
           </Button>
         </div>
 
-        <ReportFilters
+        <Filters
           dateRange={dateRange}
           setDateRange={setDateRange}
           status={status}
@@ -234,11 +237,11 @@ export default function CompanyReportsPage() {
 
         {error ? (
           <div className="rounded-lg border border-red-800 bg-red-900/30 p-6 text-red-400">
-            Erro ao carregar relatórios: {error.message}
+            Error loading reports: {error.message}
           </div>
         ) : (
-          <div className="rounded-lg border border-gray-700 bg-gray-800 shadow-lg">
-            <ReportTable reports={data} isLoading={isLoading} />
+          <div className="rounded-lg border border-neutral-700 bg-neutral-800 shadow-lg">
+            <ReportTable reports={reports} isLoading={isLoading} />
           </div>
         )}
       </div>
